@@ -77,6 +77,8 @@ from bloom.github import auth_header_from_basic_auth
 from bloom.github import auth_header_from_oauth_token
 from bloom.github import Github
 from bloom.github import GithubException
+from bloom.github import auth_header as github_auth_header
+from bloom.github import GITHUB_TOKEN, GITHUB_USER
 
 from bloom.logging import debug
 from bloom.logging import error
@@ -643,14 +645,17 @@ def get_github_interface(quiet=False):
         return _gh
     # First check to see if the oauth token is stored
     oauth_config_path = os.path.join(os.path.expanduser('~'), '.config', 'bloom')
-    config = {}
-    if os.path.exists(oauth_config_path):
-        with open(oauth_config_path, 'r') as f:
-            config = json.loads(f.read())
-            token = config.get('oauth_token', None)
-            username = config.get('github_user', None)
-            if token and username:
-                return Github(username, auth=auth_header_from_oauth_token(token), token=token)
+    # config = {}
+    # if os.path.exists(oauth_config_path):
+    #     with open(oauth_config_path, 'r') as f:
+    #         config = json.loads(f.read())
+    #         token = config.get('oauth_token', None)
+    #         username = config.get('github_user', None)
+    #         if token and username:
+    #             return Github(username, auth=auth_header_from_oauth_token(token), token=token)
+
+    if github_auth_header():
+	return Github(GITHUB_USER, auth=github_auth_header(), token=GITHUB_TOKEN)
     if not os.path.isdir(os.path.dirname(oauth_config_path)):
         os.makedirs(os.path.dirname(oauth_config_path))
     if quiet:

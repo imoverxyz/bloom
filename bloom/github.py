@@ -41,7 +41,7 @@ import base64
 import datetime
 import json
 import socket
-
+import os
 
 try:
     # Python2
@@ -58,6 +58,19 @@ except ImportError:
     from urllib.request import Request, urlopen
 
 import bloom
+
+
+GITHUB_USER = os.getenv('GITHUB_USER', None)
+GITHUB_PASSWORD = os.getenv('GITHUB_PASSWORD', None)
+GITHUB_TOKEN = os.getenv('GITHUB_TOKEN', None)
+
+
+def auth_header():
+    if GITHUB_TOKEN:
+        return auth_header_from_oauth_token(GITHUB_TOKEN)
+    elif GITHUB_USER and GITHUB_PASSWORD:
+        return auth_header_from_basic_auth(GITHUB_USER, GITHUB_PASSWORD)
+    return None
 
 
 def auth_header_from_basic_auth(user, password):

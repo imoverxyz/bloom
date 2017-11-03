@@ -48,12 +48,12 @@ try:
     # Python2
     from urllib2 import HTTPError
     from urllib2 import URLError
-    from urllib2 import urlopen
+    from urllib2 import Request, urlopen
 except ImportError:
     # Python3
     from urllib.error import HTTPError
     from urllib.error import URLError
-    from urllib.request import urlopen
+    from urllib.request import Request, urlopen
 
 from email.utils import formatdate
 
@@ -77,6 +77,7 @@ from bloom.logging import fmt
 from bloom.logging import info
 from bloom.logging import sanitize
 from bloom.logging import warning
+from bloom.github import auth_header as github_auth_header
 
 try:
     to_unicode = unicode
@@ -196,7 +197,10 @@ def load_url_to_file_handle(url, retry=2, retry_period=1, timeout=10):
     :type timeout: float
     """
     try:
-        fh = urlopen(url, timeout=timeout)
+        req = Request(url)
+        if github_auth_header():
+            req.add_header('Authorization', github_auth_header())
+        fh = urlopen(req, timeout=timeout)
     except HTTPError as e:
         if e.code == 503 and retry:
             time.sleep(retry_period)
